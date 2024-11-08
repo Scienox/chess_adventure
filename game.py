@@ -66,6 +66,14 @@ class Game:
 
         self.board["D8"].who_is_here = Queen("black", self.board["D8"], "q_", self.black_king)
 
+    def is_checkmate(self, king):
+        avaible_moves = []
+        for square in king.read_board():
+            chessman = square.who_is_here
+            if chessman and (chessman.color == king.color):
+                avaible_moves += chessman.get_capturable_destinations()
+        return len(avaible_moves) == 0
+
     def play(self):
         moves = 0
         while True:
@@ -85,9 +93,10 @@ class Game:
                     if (pawn_selected.color == "white" and (moves %2 == 0)) or (pawn_selected.color == "black" and (moves %2 != 0)):
                         if pawn_selected is not None:
                             new_pos = self.board[input(f"Move to {pawn_selected.get_capturable_destinations()}: ")]
-                            pawn_selected.move_to(new_pos)
-                            moves += 1
-                            self.board.pivot()
+                            if new_pos and new_pos in pawn_selected.capturable_destinations:
+                                pawn_selected.move_to(new_pos)
+                                moves += 1
+                                self.board.pivot()
                     else: print("Nop")
                     
                 except Exception as e:

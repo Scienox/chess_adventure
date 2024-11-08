@@ -8,10 +8,10 @@ class _ChessmanStructure:
         self.capturable_destinations = []
 
     def change_position(self, newPosition):
-        if newPosition in self.line_of_sight:
-            self.position.forget_pawn()
-            newPosition.set_pawn(self)
-            self.position = newPosition
+        #if newPosition in self.line_of_sight: """ I forgot why this condition existe. It produces errors """
+        self.position.forget_pawn()
+        newPosition.set_pawn(self)
+        self.position = newPosition
 
     def place(self):
         self.position.who_is_here = self
@@ -22,20 +22,22 @@ class _ChessmanStructure:
     def is_capturable(self, chessman_case):
         chessman = chessman_case.who_is_here
         if chessman:
+            # the king it's not capturable
             if isinstance(chessman, King):
                 return False
-            else: 
-                return True  # if next_position is check!!!!!!! building
+        # return if the next move is in check - return false if check is true
+        return not self.next_placement_is_check(chessman_case)
 
-        else: return True
-
-    def uncapturable_check(self):  # change to while loop like read_board to check more uncapturable pawns
-        self.capturable_destinations = self.line_of_sight.copy()
-        for destination in range(len(self.line_of_sight)):
-                target = self.line_of_sight[destination]
-                if not self.is_capturable(target):
-                    self.capturable_destinations.pop(destination)
-                    break
+    def uncapturable_check(self):
+        capturable_square = self.line_of_sight.copy()
+        line_of_sight_current = 0
+        while line_of_sight_current < len(capturable_square):
+            target = capturable_square[line_of_sight_current]
+            if not self.is_capturable(target):
+                capturable_square.pop(line_of_sight_current)
+                line_of_sight_current -= 1
+            line_of_sight_current += 1
+        self.capturable_destinations = capturable_square.copy()
 
     def get_capturable_destinations(self):
         self.get_line_of_sight()  # subclass function
@@ -224,7 +226,7 @@ class _ChessmanStructure:
             row_target = row_target.down
             column_target = row_target
 
-    def where_in_line_of_sight(self, position):
+    def who_has_me_in_his_sights(self, position):
         bad_places = []
         for square in self.read_board():
             chessman = square.who_is_here
@@ -235,19 +237,11 @@ class _ChessmanStructure:
         return bad_places
 
     def who_checks_me(self):
-        return self.where_in_line_of_sight(self.position)
-        """bad_places = []
-        for square in self.read_board():
-            chessman = square.who_is_here
-            if chessman and (chessman.color != self.color):
-                 for position in chessman.get_line_of_sight():
-                    if position == self.position:
-                        bad_places.append(bad_places)
-        return bad_places"""
+        return self.who_has_me_in_his_sights(self.position)
     
-    def next_placement_is_check(self, next_position):  # not tested
+    def next_placement_is_check(self, next_position):
         return_value = None
-        def reset(self):
+        def reset():
             self.change_position(save_self_position)
             if save_next_position_who_is_here:
                 save_next_position_who_is_here.change_position(next_position)
@@ -354,8 +348,8 @@ class King(_ChessmanStructure):
         if rook_right.who_is_here and isinstance(rook_right.who_is_here, Rook):
             if not bishop_right.who_is_here and not knight_right.who_is_here:
                 if not self.is_check() and rook_right.who_is_here.start:
-                    if (bishop_right not in self.where_in_line_of_sight(bishop_right)) and \
-                        (knight_right not in self.where_in_line_of_sight(knight_right)): 
+                    if (bishop_right not in self.who_has_me_in_his_sights(bishop_right)) and \
+                        (knight_right not in self.who_has_me_in_his_sights(knight_right)): 
                         return knight_right
                 
     def queenside_castling(self):
@@ -365,7 +359,7 @@ class King(_ChessmanStructure):
         rook_left = knight_left.left
         if  rook_left.who_is_here and isinstance(rook_left.who_is_here, Rook) and self.color == rook_left.who_is_here.color:
             if not queen.who_is_here and not bishop_left.who_is_here and not knight_left.who_is_here:
-                if True and rook_left.who_is_here.start:  # condition to step it's not check and starting
+                if rook_left.who_is_here.start:
                     return bishop_left
 
     def castlings_destination(self):
