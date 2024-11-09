@@ -57,7 +57,7 @@ class Board:
         self.matrix = [[_Case() for _ in range(8)] for _ in range(8)]
         self.__geometry = 8
         self.__build_matrix()
-
+        self.history = []
 
     def __build_matrix(self):
         nameListW = "ABCDEFGH"
@@ -67,6 +67,9 @@ class Board:
 
     def pivot(self):
         self.matrix = (list(reversed(self.matrix)))
+
+    def save(self):
+        self.history.append(self.matrix)
 
     def __getitem__(self, name):
         if isinstance(name, str):

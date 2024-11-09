@@ -290,7 +290,7 @@ class Pawn(_ChessmanStructure):
             newClass = input("Class: ")
             self.delete()
             newTrans = eval(newClass)
-            newTrans(self.color, self.position, input('Type: ')).place()
+            newTrans(self.color, self.position, input('Type: '), self.king).place()
 
 
 class Rook(_ChessmanStructure):

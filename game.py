@@ -49,14 +49,14 @@ class Game:
 
         # Knights
         self.board["B1"].who_is_here = knight("white", self.board["B1"], "N_", self.white_king)
-        #self.board["G1"].who_is_here = knight("white", self.board["G1"], "N_", self.white_king)
+        self.board["G1"].who_is_here = knight("white", self.board["G1"], "N_", self.white_king)
 
         self.board["B8"].who_is_here = knight("black", self.board["B8"], "n_", self.black_king)
         self.board["G8"].who_is_here = knight("black", self.board["G8"], "n_", self.black_king)
 
         #Bishop
         self.board["C1"].who_is_here = Bishop("white", self.board["C1"], "B_", self.white_king)
-        #self.board["F1"].who_is_here = Bishop("white", self.board["F1"], "B_", self.white_king)
+        self.board["F1"].who_is_here = Bishop("white", self.board["F1"], "B_", self.white_king)
 
         self.board["C8"].who_is_here = Bishop("black", self.board["C8"], "b_", self.black_king)
         self.board["F8"].who_is_here = Bishop("black", self.board["F8"], "b_", self.black_king)
@@ -72,7 +72,7 @@ class Game:
             chessman = square.who_is_here
             if chessman and (chessman.color == king.color):
                 avaible_moves += chessman.get_capturable_destinations()
-        return len(avaible_moves) == 0
+        return not len(avaible_moves)
 
     def play(self):
         moves = 0
@@ -97,10 +97,14 @@ class Game:
                                 pawn_selected.move_to(new_pos)
                                 moves += 1
                                 self.board.pivot()
-                    else: print("Nop")
+                                self.board.save()
+                    else: print("Wrong color...")
                     
                 except Exception as e:
                     print(e)
                 finally:
                     print("White: ", self.white_king.is_check())
                     print("Black: ", self.black_king.is_check())
+                    if self.is_checkmate(self.white_king) or self.is_checkmate(self.black_king):
+                        print("White" if self.is_checkmate(self.black_king) else "Black", "Win!")
+                        break
